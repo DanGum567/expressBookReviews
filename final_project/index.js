@@ -6,12 +6,26 @@ const genl_routes = require('./router/general.js').general;
 
 const app = express();
 
+let customers = [];
+
 app.use(express.json());
 
 app.use("/customer",session({secret:"fingerprint_customer",resave: true, saveUninitialized: true}))
 
 app.use("/customer/auth/*", function auth(req,res,next){
-//Write the authenication mechanism here
+    if(req.session.authorization){
+        let token = session.authotization["accessToken"];
+        jwt.verify(token, 'access', (err, user) =>{
+            if(!err){
+                req.user = user;
+                next();
+            }else{
+                return res.status(403).json({message: "Customer successfully authenticated"});
+            }
+        });
+    }else{
+        return res.status(401).json({message: "Customer could not authenticate"});
+    }
 });
  
 const PORT =5000;
