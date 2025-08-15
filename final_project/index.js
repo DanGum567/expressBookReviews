@@ -1,5 +1,8 @@
+// Importing Express.js library
 const express = require('express');
+// Importing library to create JWT token
 const jwt = require('jsonwebtoken');
+// Importing library to handle session
 const session = require('express-session')
 const customer_routes = require('./router/auth_users.js').authenticated;
 const genl_routes = require('./router/general.js').general;
@@ -13,8 +16,9 @@ app.use(express.json());
 app.use("/customer",session({secret:"fingerprint_customer",resave: true, saveUninitialized: true}))
 
 app.use("/customer/auth/*", function auth(req,res,next){
+    console.log(req.session.authorization);
     if(req.session.authorization){
-        let token = session.authotization["accessToken"];
+        let token = req.session.authorization["accessToken"];
         jwt.verify(token, 'access', (err, user) =>{
             if(!err){
                 req.user = user;
@@ -28,9 +32,9 @@ app.use("/customer/auth/*", function auth(req,res,next){
     }
 });
  
-const PORT =5000;
+const PORT =5001;
 
 app.use("/customer", customer_routes);
 app.use("/", genl_routes);
 
-app.listen(PORT,()=>console.log("Server is running"));
+app.listen(PORT,()=>console.log("Server is running at port", PORT));
